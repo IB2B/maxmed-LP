@@ -1,0 +1,127 @@
+import Image from "next/image";
+import DottedMap from "dotted-map";
+
+import { cn } from "@/lib/utils";
+import { Divider, Frame } from "@/components/site/frame";
+import { Tag } from "@/components/site/feature-illustrations";
+import { CountUp } from "@/components/site/count-up";
+import { IS_SAMPLE, networkCities, networkStats } from "@/data/network";
+
+// Computed once on the server; visitors only receive the finished SVG.
+const MAP_HEIGHT = 70;
+const map = new DottedMap({ height: MAP_HEIGHT, grid: "diagonal", countries: ["ITA"] });
+const dots = map.getPoints();
+const width = Math.max(...dots.map((d) => d.x)) + 1;
+const height = MAP_HEIGHT;
+
+// Snap each city to the nearest dot so pins sit exactly on the grid.
+const pins = networkCities.map((city) => {
+  const pin = new DottedMap({ height: MAP_HEIGHT, grid: "diagonal", countries: ["ITA"] });
+  pin.addPin({ lat: city.lat, lng: city.lng });
+  const point = pin.getPoints().find((p) => "lat" in p) ?? { x: 0, y: 0 };
+  return { ...city, x: point.x, y: point.y };
+});
+
+const rows = [
+  ...networkStats,
+  { value: String(networkCities.length), label: "Cities with MaxMed facilities", icon: "cityscape" },
+];
+
+export function ItalyNetwork() {
+  return (
+    <section id="network" className="scroll-mt-[68px]">
+      <Frame className="px-5 py-20 text-center sm:px-10 sm:py-24">
+        <div className="flex items-center justify-center gap-3">
+          <p className="font-mono text-[13px] font-medium tracking-wider text-[#e5533d] uppercase">
+            Across Italy
+          </p>
+          {IS_SAMPLE && <Tag tone="amber">Sample data</Tag>}
+        </div>
+        <h2 className="mt-4 text-[34px] leading-[1.1] font-semibold tracking-[-0.045em] text-balance text-ink sm:text-[48px]">
+          One network, from the Alps to Sicily
+        </h2>
+        <p className="mx-auto mt-5 max-w-[480px] text-[17px] leading-7 tracking-normal text-balance text-body">
+          Care facilities and doctors across Italy already work together on MaxMed.
+        </p>
+      </Frame>
+
+      <Divider />
+      <Frame>
+        <div className="grid lg:grid-cols-[1fr_450px]">
+          <div className="grid place-items-center px-6 py-12 sm:px-10 lg:border-r lg:border-hairline">
+            <div
+              className="relative w-full max-w-[420px]"
+              style={{ aspectRatio: `${width} / ${height}` }}
+            >
+              <svg
+                viewBox={`0 0 ${width} ${height}`}
+                className="absolute inset-0 size-full"
+                role="img"
+                aria-label={`Map of Italy with MaxMed facilities in ${networkCities.length} cities`}
+              >
+                {dots.map((d, i) => (
+                  <circle key={i} cx={d.x} cy={d.y} r={0.28} fill="#d4d4d4" />
+                ))}
+                {pins.map((p, i) => (
+                  <g key={p.name}>
+                    <circle
+                      cx={p.x}
+                      cy={p.y}
+                      r={0.55}
+                      fill="#e5533d"
+                      className="map-ping"
+                      style={{ animationDelay: `${((i * 7) % 12) * 0.23}s` }}
+                    />
+                    <circle cx={p.x} cy={p.y} r={0.55} fill="#e5533d" />
+                  </g>
+                ))}
+              </svg>
+
+              {/* Hover targets and labels, positioned over the SVG. */}
+              {pins.map((p) => (
+                <div
+                  key={p.name}
+                  className="group absolute size-5 -translate-x-1/2 -translate-y-1/2"
+                  style={{ left: `${(p.x / width) * 100}%`, top: `${(p.y / height) * 100}%` }}
+                >
+                  <span
+                    className={cn(
+                      "pointer-events-none absolute bottom-full left-1/2 mb-1 -translate-x-1/2 rounded-[5px] px-2 py-1 text-xs font-medium tracking-[-0.01em] whitespace-nowrap transition-opacity",
+                      p.label
+                        ? "bg-white text-ink shadow-[0_1px_3px_rgba(0,0,0,0.12)] ring-1 ring-black/5 group-hover:bg-ink group-hover:text-white"
+                        : "bg-ink text-white opacity-0 group-hover:opacity-100"
+                    )}
+                  >
+                    {p.name}
+                    <span className="hidden group-hover:inline"> · {p.facilities} facilities</span>
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <dl className="order-first grid divide-y divide-hairline border-b border-hairline lg:order-none lg:grid-rows-4 lg:border-b-0">
+            {rows.map((row) => (
+              <div key={row.label} className="flex items-center gap-5 px-5 py-8 sm:px-9">
+                <Image
+                  src={`/icons/${row.icon}.svg`}
+                  alt=""
+                  width={48}
+                  height={48}
+                  className="-m-1 size-12 shrink-0"
+                />
+                <div className="flex flex-col-reverse">
+                  <dt className="mt-1.5 text-[15px] tracking-[-0.01em] text-body">{row.label}</dt>
+                  <dd className="text-[40px] leading-none font-semibold tracking-[-0.045em] text-ink tabular-nums">
+                    <CountUp value={row.value} />
+                  </dd>
+                </div>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </Frame>
+      <Divider />
+    </section>
+  );
+}
