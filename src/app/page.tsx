@@ -4,7 +4,9 @@ import { Features } from "@/components/site/features";
 import { Details } from "@/components/site/details";
 import { HowItWorks } from "@/components/site/how-it-works";
 import { ItalyNetwork } from "@/components/site/italy-network";
+import { Testimonials } from "@/components/site/testimonials";
 import { Faq } from "@/components/site/faq";
+import { Security } from "@/components/site/security";
 import { Demo } from "@/components/site/demo";
 import { Doctors } from "@/components/site/doctors";
 import { FinalCta } from "@/components/site/final-cta";
@@ -20,7 +22,9 @@ export default function Home() {
         <Details />
         <HowItWorks />
         <ItalyNetwork />
+        <Testimonials />
         <Faq />
+        <Security />
         <Demo />
         <Doctors />
         <FinalCta />
