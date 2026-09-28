@@ -49,6 +49,7 @@
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
+  --color-primary-hover: #1d4ed8;
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
@@ -70,7 +71,7 @@
   --card-foreground: #171717;
   --popover: #ffffff;
   --popover-foreground: #171717;
-  --primary: #171717;
+  --primary: #2563eb; /* Vivid blue: buttons */
   --primary-foreground: #ffffff;
   --secondary: #ffffff;
   --secondary-foreground: #171717;
@@ -81,7 +82,7 @@
   --destructive: #ee0000;
   --border: #ebebeb;
   --input: #ebebeb;
-  --ring: #0070f3;
+  --ring: #2563eb;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);

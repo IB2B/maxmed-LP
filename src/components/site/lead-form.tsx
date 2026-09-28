@@ -6,7 +6,7 @@ import { CheckIcon } from "lucide-react";
 export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 export const inputClass =
-  "h-11 w-full rounded-md border border-hairline bg-white px-3 text-base tracking-[-0.01em] text-ink transition-colors outline-none placeholder:text-faint hover:border-[#d6d6d6] focus:border-ink focus:ring-3 focus:ring-ink/10 aria-invalid:border-error aria-invalid:ring-error/10";
+  "h-11 w-full rounded-md border border-hairline bg-white px-3 text-base tracking-[-0.01em] text-ink transition-colors outline-none placeholder:text-faint hover:border-[#d6d6d6] focus:border-primary focus:ring-3 focus:ring-primary/20 aria-invalid:border-error aria-invalid:ring-error/10";
 
 export function Field({
   id,
