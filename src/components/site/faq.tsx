@@ -4,45 +4,7 @@ import { useId, useState } from "react";
 import { PlusIcon } from "lucide-react";
 
 import { Divider, Frame } from "@/components/site/frame";
-
-const faqs = [
-  {
-    q: "What do we need to get started?",
-    a: "Send us a request with a few details about your facility. Our team reviews it, then you sign your contract online with a one-time code sent by SMS or email. Once it's signed, your operators can log in and register patients.",
-  },
-  {
-    q: "Who are the doctors, and how do they join a consultation?",
-    a: "Doctors on MaxMed set their availability in the platform. When you start a consultation, the patient goes into the queue, an available doctor is assigned and joins on video. Each doctor sees the patients assigned to them and the history of their consultations.",
-  },
-  {
-    q: "What happens in an emergency?",
-    a: "Your operator raises an emergency from the console in one tap. It's marked by priority, a doctor is alerted straight away, and it stays open until the doctor resolves it with notes. Call recordings are kept, so you can play them back later.",
-  },
-  {
-    q: "How do prescriptions work?",
-    a: "The doctor issues the prescription during the consultation. It's linked to the patient and shows up in your prescriptions list, with pending deliveries highlighted. You can also download a monthly prescriptions report.",
-  },
-  {
-    q: "How does billing work?",
-    a: "Your facility pays a subscription. Your invoices and subscription status are kept in one place in the console, ready to view or download at any time. Discount coupons can be applied to subscriptions.",
-  },
-  {
-    q: "Can we follow our team's activity?",
-    a: "Yes. The console has statistics you can filter by date, a calendar with every consultation, and a monthly count of consultations per patient that you can download.",
-  },
-  {
-    q: "Do you offer training for our staff?",
-    a: "Yes. MaxMed runs training courses for operators, with attendance and progress tracked lesson by lesson. Scholarships are available to reduce the cost of courses.",
-  },
-  {
-    q: "Can we manage our medical devices in MaxMed?",
-    a: "Yes. The equipment section keeps an inventory of your medical devices, with details and usage statistics, next to your patients and consultations.",
-  },
-  {
-    q: "Is the platform in Italian?",
-    a: "Yes. The whole console is in Italian, from patient records and consultations to contracts and invoices.",
-  },
-];
+import { useI18n } from "@/i18n/provider";
 
 /** Hand-drawn chat bubble with a white sticker edge, matching the details icons. */
 function ChatSticker() {
@@ -74,6 +36,8 @@ function ChatSticker() {
 }
 
 export function Faq() {
+  const t = useI18n().dict.faq;
+  const { bookDemo } = useI18n().dict.common;
   const baseId = useId();
   const [open, setOpen] = useState<number | null>(null);
 
@@ -85,20 +49,20 @@ export function Faq() {
             {/* Stays in view while the questions scroll past. */}
             <div className="lg:sticky lg:top-[124px]">
               <p className="font-mono text-[13px] font-medium tracking-wider text-[#e5533d] uppercase">
-                FAQ
+                {t.eyebrow}
               </p>
               <h2 className="mt-4 text-[34px] leading-[1.1] font-semibold tracking-[-0.045em] text-balance text-ink sm:text-[44px]">
-                Frequently asked questions
+                {t.title}
               </h2>
               <p className="mt-4 text-base leading-7 tracking-[-0.005em] text-body">
-                Anything else?{" "}
+                {t.anythingElse}{" "}
                 <a
                   href="#demo"
                   className="text-ink underline decoration-hairline decoration-1 underline-offset-4 hover:decoration-ink"
                 >
-                  Book a demo
+                  {bookDemo}
                 </a>{" "}
-                and ask us.
+                {t.andAsk}
               </p>
               <ChatSticker />
             </div>
@@ -106,7 +70,7 @@ export function Faq() {
 
           <div className="bg-white">
             <ul>
-              {faqs.map((item, i) => {
+              {t.items.map((item, i) => {
                 const expanded = open === i;
                 const panelId = `${baseId}-panel-${i}`;
                 const buttonId = `${baseId}-button-${i}`;

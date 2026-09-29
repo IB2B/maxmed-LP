@@ -2,57 +2,67 @@ import Link from "next/link";
 
 import { Divider, Frame } from "@/components/site/frame";
 import { Logo } from "@/components/site/logo";
+import { getDictionary, homeHash, type Locale } from "@/i18n/config";
+import { LOGIN_URL } from "@/lib/links";
 
-const columns = [
-  {
-    title: "Product",
-    links: [
-      { label: "Platform", href: "#platform" },
-      { label: "The details", href: "#details" },
-      { label: "How it works", href: "#how-it-works" },
-      { label: "FAQ", href: "#faq" },
-    ],
-  },
-  {
-    title: "Get started",
-    links: [
-      { label: "Book a demo", href: "#demo" },
-      { label: "Join as a doctor", href: "#doctors" },
-      { label: "Log in", href: "/login" },
-    ],
-  },
-  {
-    // TODO: these pages don't exist yet. Needed for GDPR before the campaign.
-    title: "Legal",
-    links: [
-      { label: "Privacy policy", href: "/privacy" },
-      { label: "Terms of service", href: "/terms" },
-      { label: "Cookie policy", href: "/cookies" },
-    ],
-  },
-];
+export function Footer({ lang }: { lang: Locale }) {
+  const { footer: t, common } = getDictionary(lang);
+  const columns = [
+    {
+      title: t.product,
+      links: [
+        { label: t.links.platform, href: homeHash(lang, "platform") },
+        { label: t.links.details, href: homeHash(lang, "details") },
+        { label: t.links.howItWorks, href: homeHash(lang, "how-it-works") },
+        { label: t.links.faq, href: homeHash(lang, "faq") },
+      ],
+    },
+    {
+      title: t.getStarted,
+      links: [
+        { label: common.bookDemo, href: homeHash(lang, "demo") },
+        { label: common.joinDoctor, href: homeHash(lang, "doctors") },
+        { label: common.logIn, href: LOGIN_URL },
+      ],
+    },
+    {
+      title: t.legal,
+      links: [
+        { label: t.links.privacy, href: `/${lang}/privacy` },
+        { label: t.links.terms, href: `/${lang}/terms` },
+        { label: t.links.cookies, href: `/${lang}/cookies` },
+      ],
+    },
+  ];
+  const contact = [
+    { label: "info@maxmed.it", href: "mailto:info@maxmed.it" },
+    { label: "+39 0350510059", href: "tel:+390350510059" },
+    {
+      label: t.address,
+      href: "https://www.google.com/maps/search/?api=1&query=Via+Giorgio+Oprandi+1,+24065+Lovere+BG",
+      external: true,
+    },
+  ];
 
-export function Footer() {
   return (
     <footer>
-      <Frame className="grid gap-12 px-5 pt-16 pb-14 sm:px-10 lg:grid-cols-[1fr_auto] lg:gap-24">
+      <Frame className="grid gap-12 px-5 pt-16 pb-14 sm:px-10 lg:grid-cols-[minmax(260px,1fr)_auto] lg:gap-16">
         <div className="max-w-[320px]">
-          <Link href="/" aria-label="MaxMed, home">
+          <Link href={`/${lang}`} aria-label={common.home}>
             <Logo />
           </Link>
           <p className="mt-4 text-[15px] leading-6 tracking-[-0.005em] text-body">
-            Telemedicine for care facilities. Triage, video consultations, emergencies and
-            prescriptions in one console.
+            {t.tagline}
           </p>
           <a
-            href="#demo"
+            href={homeHash(lang, "demo")}
             className="mt-6 inline-flex text-[15px] font-medium tracking-[-0.01em] text-ink underline decoration-hairline underline-offset-4 hover:decoration-ink"
           >
-            Get in touch
+            {t.getInTouch}
           </a>
         </div>
 
-        <nav aria-label="Footer" className="grid grid-cols-2 gap-10 sm:grid-cols-3 sm:gap-16">
+        <nav aria-label={t.nav} className="grid grid-cols-2 gap-10 sm:grid-cols-4 sm:gap-10">
           {columns.map((col) => (
             <div key={col.title}>
               <p className="font-mono text-xs font-medium tracking-wider text-mute uppercase">
@@ -72,14 +82,30 @@ export function Footer() {
               </ul>
             </div>
           ))}
+
+          <div>
+            <p className="font-mono text-xs font-medium tracking-wider text-mute uppercase">{t.contact}</p>
+            <address className="mt-4 space-y-3 not-italic">
+              {contact.map((item) => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  {...(item.external && { target: "_blank", rel: "noopener noreferrer" })}
+                  className="block text-[15px] tracking-[-0.01em] whitespace-pre-line text-body transition-colors hover:text-ink"
+                >
+                  {item.label}
+                </a>
+              ))}
+            </address>
+          </div>
         </nav>
       </Frame>
 
       <Divider />
       <Frame className="flex flex-col gap-2 px-5 py-6 text-[13px] tracking-[-0.01em] text-mute sm:flex-row sm:items-center sm:justify-between sm:px-10">
-        <p>© {new Date().getFullYear()} MaxMed Telemedicina. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} MaxMed Telemedicina. {t.rights}</p>
         <p>
-          Emoji graphics by{" "}
+          {t.emojiBy}{" "}
           <a
             href="https://openmoji.org"
             target="_blank"
@@ -88,7 +114,7 @@ export function Footer() {
           >
             OpenMoji
           </a>
-          , licensed under{" "}
+          , {t.licensedUnder}{" "}
           <a
             href="https://creativecommons.org/licenses/by-sa/4.0/"
             target="_blank"

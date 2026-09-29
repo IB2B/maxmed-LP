@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+
+import { useI18n } from "@/i18n/provider";
 import {
   ArrowUpLeftIcon,
   MaximizeIcon,
@@ -60,6 +62,7 @@ function formatTime(seconds: number) {
 }
 
 export function VideoPlayer({ videoId, title }: { videoId: string; title: string }) {
+  const t = useI18n().dict.video;
   const anchorRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const mountRef = useRef<HTMLDivElement>(null);
@@ -269,14 +272,14 @@ export function VideoPlayer({ videoId, title }: { videoId: string; title: string
         onClick={() => setDismissed(true)}
         className="absolute inset-0 grid place-items-center text-sm tracking-[-0.01em] text-white/60 hover:text-white"
       >
-        Playing in the corner. Click to bring it back here.
+        {t.floating}
       </button>
     )}
     <div
       ref={containerRef}
       tabIndex={0}
       role="region"
-      aria-label={`Video: ${title}`}
+      aria-label={`${t.region}: ${title}`}
       onKeyDown={onKeyDown}
       onMouseMove={started ? showControls : undefined}
       onMouseLeave={() => playing && setControlsVisible(false)}
@@ -308,7 +311,7 @@ export function VideoPlayer({ videoId, title }: { videoId: string; title: string
       {started && (
         <button
           type="button"
-          aria-label={playing ? "Pause" : "Play"}
+          aria-label={playing ? t.pause : t.play}
           onClick={togglePlay}
           onDoubleClick={toggleFullscreen}
           className="absolute inset-0 cursor-[inherit]"
@@ -319,7 +322,7 @@ export function VideoPlayer({ videoId, title }: { videoId: string; title: string
         <button
           type="button"
           onClick={togglePlay}
-          aria-label={`Play video: ${title}`}
+          aria-label={`${t.playVideo}: ${title}`}
           className="absolute inset-0 grid place-items-center"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -334,7 +337,7 @@ export function VideoPlayer({ videoId, title }: { videoId: string; title: string
             <span className="grid size-10 place-items-center rounded-full bg-ink text-white">
               <PlayIcon className="size-4 translate-x-px fill-current" />
             </span>
-            Watch the walkthrough
+            {t.watchWalkthrough}
           </span>
         </button>
       )}
@@ -358,7 +361,7 @@ export function VideoPlayer({ videoId, title }: { videoId: string; title: string
           <button
             type="button"
             onClick={backToVideo}
-            aria-label="Back to video"
+            aria-label={t.backToVideo}
             className="grid size-7 place-items-center rounded-md bg-black/55 text-white backdrop-blur-sm hover:bg-black/75"
           >
             <ArrowUpLeftIcon className="size-4" />
@@ -366,7 +369,7 @@ export function VideoPlayer({ videoId, title }: { videoId: string; title: string
           <button
             type="button"
             onClick={closeMini}
-            aria-label="Close mini player"
+            aria-label={t.closeMini}
             className="grid size-7 place-items-center rounded-md bg-black/55 text-white backdrop-blur-sm hover:bg-black/75"
           >
             <XIcon className="size-4" />
@@ -383,7 +386,7 @@ export function VideoPlayer({ videoId, title }: { videoId: string; title: string
       >
         <input
           type="range"
-          aria-label="Seek"
+          aria-label={t.seek}
           min={0}
           max={duration || 0}
           step={0.1}
@@ -396,7 +399,7 @@ export function VideoPlayer({ videoId, title }: { videoId: string; title: string
           <button
             type="button"
             onClick={togglePlay}
-            aria-label={playing ? "Pause" : "Play"}
+            aria-label={playing ? t.pause : t.play}
             className="grid size-8 place-items-center rounded-md hover:bg-white/15"
           >
             {playing ? (
@@ -412,14 +415,14 @@ export function VideoPlayer({ videoId, title }: { videoId: string; title: string
             <button
               type="button"
               onClick={toggleMute}
-              aria-label={silent ? "Unmute" : "Mute"}
+              aria-label={silent ? t.unmute : t.mute}
               className="grid size-8 place-items-center rounded-md hover:bg-white/15"
             >
               {silent ? <VolumeXIcon className="size-4" /> : <Volume2Icon className="size-4" />}
             </button>
             <input
               type="range"
-              aria-label="Volume"
+              aria-label={t.volume}
               min={0}
               max={100}
               value={silent ? 0 : volume}
@@ -436,7 +439,7 @@ export function VideoPlayer({ videoId, title }: { videoId: string; title: string
           <button
             type="button"
             onClick={toggleFullscreen}
-            aria-label={fullscreen ? "Exit full screen" : "Full screen"}
+            aria-label={fullscreen ? t.exitFullScreen : t.fullScreen}
             className="ml-auto grid size-8 place-items-center rounded-md hover:bg-white/15"
           >
             {fullscreen ? <MinimizeIcon className="size-4" /> : <MaximizeIcon className="size-4" />}

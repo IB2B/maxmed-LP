@@ -13,55 +13,41 @@ import {
   QueueIllustration,
   VideoIllustration,
 } from "@/components/site/feature-illustrations";
+import { useI18n } from "@/i18n/provider";
 
 const DURATION = 7000;
 
-const items = [
+// Visuals for each feature, in the same order as features.items in the dictionaries.
+const visuals = [
   {
-    title: "Live video consultations",
-    description:
-      "Start a consultation from the patient record. A doctor joins on video and the status updates live on both sides.",
     panel: "bg-[#eef3fb]",
     Illustration: VideoIllustration,
   },
   {
-    title: "Triage patients by risk code",
-    description:
-      "Red, yellow and green codes keep the most urgent patients at the top. Waiting patients are assigned to available doctors.",
     panel: "bg-[#fbf3e1]",
     Illustration: QueueIllustration,
   },
   {
-    title: "Raise emergencies in real time",
-    description:
-      "One tap alerts a doctor straight away. Every emergency is resolved with notes, and the call recording is kept.",
     panel: "bg-[#fcefee]",
     Illustration: EmergencyIllustration,
   },
   {
-    title: "Digital prescriptions",
-    description:
-      "Doctors issue prescriptions during the visit, linked to the patient. Pending deliveries are highlighted for your team.",
     panel: "bg-[#ebf6ef]",
     Illustration: PrescriptionIllustration,
   },
   {
-    title: "Book around doctor availability",
-    description:
-      "One calendar for every visit, with doctors' availability visible before you book. Doctor shifts are tracked automatically.",
     panel: "bg-[#f1effa]",
     Illustration: CalendarIllustration,
   },
   {
-    title: "Sign up and sign online",
-    description:
-      "Sign your contract with a one-time code by SMS or email. Invoices, subscription and monthly reports live in one place.",
     panel: "bg-[#fdf1e7]",
     Illustration: ContractIllustration,
   },
 ];
 
 export function FeatureShowcase() {
+  const t = useI18n().dict.features;
+  const items = t.items.map((copy, i) => ({ ...copy, ...visuals[i] }));
   const rootRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
   const [run, setRun] = useState(0);
@@ -160,7 +146,7 @@ export function FeatureShowcase() {
           className="absolute top-4 right-4 flex items-center gap-1.5 rounded-full border border-black/[0.08] bg-white/80 px-3 py-1.5 text-[13px] tracking-normal text-body transition-colors hover:bg-white hover:text-ink"
         >
           <RotateCcwIcon className="size-3.5" />
-          Replay
+          {t.replay}
         </button>
         {illustration}
       </div>

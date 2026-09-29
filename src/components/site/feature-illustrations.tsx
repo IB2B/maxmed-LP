@@ -15,6 +15,9 @@ import {
 
 import { cn } from "@/lib/utils";
 import { DemoCursor } from "@/components/site/demo-cursor";
+import { useI18n } from "@/i18n/provider";
+
+const useMock = () => useI18n().dict.mock;
 
 /* Shared building blocks. Kept deliberately crisp: small radii, real type sizes. */
 
@@ -118,12 +121,13 @@ export function RiskMark({ tone }: { tone: "red" | "yellow" | "green" }) {
 
 /* 1. Video consultation, using a real frame from the MaxMed video. */
 export function VideoIllustration() {
+  const m = useMock();
   const [muted, setMuted] = useState(false);
   return (
     <div className="relative w-full max-w-[520px]">
       <div className={panel}>
         <PanelHeader
-          title="Consultation · G. Rossi, 72"
+          title={`${m.consultation} · G. Rossi, 72`}
           meta={
             <span className="flex items-center gap-1.5">
               <span className="size-1.5 rounded-full bg-error" /> REC 04:12
@@ -152,7 +156,7 @@ export function VideoIllustration() {
                 Dr. L. Bianchi
               </p>
               <p className="text-[13px] tracking-[-0.01em] text-white/70">
-                General medicine
+                {m.generalMedicine}
               </p>
             </div>
             <div className="flex gap-1.5">
@@ -185,7 +189,7 @@ export function VideoIllustration() {
           className="flex items-center justify-between px-4 py-2.5"
         >
           <span className="text-[15px] tracking-[-0.01em] text-body">
-            Doctor joined the call
+            {m.doctorJoined}
           </span>
           <span className="text-[13px] tracking-[-0.01em] text-mute">
             10:02
@@ -201,39 +205,40 @@ export function VideoIllustration() {
 
 /* 2. Triage and queue */
 const queue = [
-  { name: "G. Rossi", age: 72, note: "Chest pain", tone: "red", wait: "0:48" },
+  { name: "G. Rossi", age: 72, note: "chestPain", tone: "red", wait: "0:48" },
   {
     name: "A. Marino",
     age: 58,
-    note: "High fever",
+    note: "highFever",
     tone: "yellow",
     wait: "6:10",
   },
   {
     name: "F. Esposito",
     age: 66,
-    note: "Follow-up",
+    note: "followUp",
     tone: "yellow",
     wait: "9:32",
   },
   {
     name: "L. Conti",
     age: 41,
-    note: "Skin rash",
+    note: "skinRash",
     tone: "green",
     wait: "14:05",
   },
 ] as const;
 
 export function QueueIllustration() {
+  const m = useMock();
   return (
     <div className="relative w-full max-w-[520px]">
       <div className={panel}>
-        <PanelHeader title="Patient queue" meta="4 waiting" />
+        <PanelHeader title={m.patientQueue} meta={`4 ${m.waiting}`} />
         <div className="grid grid-cols-[1fr_auto_auto] border-b border-hairline px-4 py-2 text-xs tracking-[0.04em] text-mute uppercase">
-          <span>Patient</span>
-          <span className="w-28">Reason</span>
-          <span className="w-14 text-right">Wait</span>
+          <span>{m.patient}</span>
+          <span className="w-28">{m.reason}</span>
+          <span className="w-14 text-right">{m.wait}</span>
         </div>
         {queue.map((p, i) => (
           <In key={p.name} delay={150 + i * 200}>
@@ -247,7 +252,7 @@ export function QueueIllustration() {
                 <span className="text-mute">{p.age}</span>
               </span>
               <span className="w-28 text-[15px] tracking-[-0.01em] text-body">
-                {p.note}
+                {m[p.note]}
               </span>
               <span className="w-14 text-right text-[13px] tracking-[-0.01em] text-mute">
                 {p.wait}
@@ -263,7 +268,7 @@ export function QueueIllustration() {
             G. Rossi → Dr. Bianchi
           </span>
           <Tag tone="green">
-            <CheckIcon className="size-3" strokeWidth={2.5} /> Assigned
+            <CheckIcon className="size-3" strokeWidth={2.5} /> {m.assigned}
           </Tag>
         </In>
       </div>
@@ -273,14 +278,12 @@ export function QueueIllustration() {
 }
 
 /* 3. Emergencies */
-const timeline = [
-  { step: "Emergency raised by operator", time: "10:14:02" },
-  { step: "Dr. Bianchi alerted", time: "10:14:03" },
-  { step: "Doctor joined the call", time: "10:14:41" },
-  { step: "Resolved, notes attached", time: "10:26:18" },
-];
+// One time per step in mock.timeline.
+const timelineTimes = ["10:14:02", "10:14:03", "10:14:41", "10:26:18"];
 
 export function EmergencyIllustration() {
+  const m = useMock();
+  const timeline = m.timeline.map((step, i) => ({ step, time: timelineTimes[i] }));
   return (
     <div className="relative w-full max-w-[500px]">
       <div className={panel}>
@@ -293,11 +296,11 @@ export function EmergencyIllustration() {
           </span>
           <div className="flex-1">
             <p className="text-[15px] font-semibold text-ink">
-              Emergency · G. Rossi, 72
+              {m.emergency} · G. Rossi, 72
             </p>
             <p className="text-[13px] tracking-[-0.01em] text-mute">EM-2291</p>
           </div>
-          <Tag tone="red">Red code</Tag>
+          <Tag tone="red">{m.redCode}</Tag>
         </div>
         <ol className="px-4 py-3">
           {timeline.map((t, i) => (
@@ -323,31 +326,31 @@ export function EmergencyIllustration() {
 }
 
 /* 4. Prescriptions: the cursor writes, signs and sends a prescription. */
-const medicines = [
-  { drug: "Paracetamol 1 g", dose: "1 tab · 3× day · 5 days" },
-  { drug: "Omeprazole 20 mg", dose: "1 cap · 1× day · 14 days" },
-];
+// Doses are in mock.doses, in the same order.
+const drugs = ["Paracetamol 1 g", "Omeprazole 20 mg"];
 const RX = { add1: 1000, add2: 2100, sign: 3300, send: 4400, look: 5300 };
 
 export function PrescriptionIllustration() {
+  const m = useMock();
+  const medicines = drugs.map((drug, i) => ({ drug, dose: m.doses[i] }));
   const [added, setAdded] = useState(0);
   const [signed, setSigned] = useState(false);
   const [sent, setSent] = useState(false);
   return (
     <div className="relative w-full max-w-[500px]">
       <div className={panel}>
-        <PanelHeader title="Prescription" meta="RX-10482" />
+        <PanelHeader title={m.prescription} meta="RX-10482" />
         <div className="flex items-center justify-between px-4 pt-3">
           <span className="text-[15px] tracking-[-0.01em] text-body">
-            Patient <span className="text-ink">G. Rossi, 72</span>
+            {m.patient} <span className="text-ink">G. Rossi, 72</span>
           </span>
           <span data-cursor="status">
             {sent ? (
               <span className="anim-in inline-block">
-                <Tag tone="amber">Pending delivery</Tag>
+                <Tag tone="amber">{m.pendingDelivery}</Tag>
               </span>
             ) : (
-              <Tag>Draft</Tag>
+              <Tag>{m.draft}</Tag>
             )}
           </span>
         </div>
@@ -368,7 +371,7 @@ export function PrescriptionIllustration() {
               data-cursor="add"
               className="mt-2.5 flex h-9 items-center gap-1.5 rounded-md border border-dashed border-[#d6d6d6] px-3 text-[13px] font-medium tracking-[-0.01em] text-body transition-colors data-hovered:border-ink data-hovered:text-ink"
             >
-              <PlusIcon className="size-3.5" strokeWidth={2.5} /> Add medicine
+              <PlusIcon className="size-3.5" strokeWidth={2.5} /> {m.addMedicine}
             </span>
           )}
         </div>
@@ -378,7 +381,7 @@ export function PrescriptionIllustration() {
           {signed ? (
             <span className="flex items-center gap-3">
               <span className="anim-in flex items-center gap-1.5 text-[13px] font-medium tracking-[-0.01em] text-ink">
-                <CheckIcon className="size-3.5 text-emerald-600" strokeWidth={2.5} /> Signed 10:31
+                <CheckIcon className="size-3.5 text-emerald-600" strokeWidth={2.5} /> {m.signedAt} 10:31
               </span>
               <span
                 data-cursor="send"
@@ -389,7 +392,7 @@ export function PrescriptionIllustration() {
                     : "border-hairline bg-white text-ink data-hovered:bg-hairline-soft"
                 )}
               >
-                {sent ? "Sent" : "Send"}
+                {sent ? m.sent : m.send}
               </span>
             </span>
           ) : (
@@ -402,7 +405,7 @@ export function PrescriptionIllustration() {
                   : "bg-hairline-soft text-faint"
               )}
             >
-              Sign
+              {m.sign}
             </span>
           )}
         </div>
@@ -421,7 +424,6 @@ export function PrescriptionIllustration() {
 }
 
 /* 5. Calendar: check availability, book a visit, then drag another one. */
-const days = ["Mon 28", "Tue 29", "Wed 30", "Thu 1", "Fri 2"];
 const hours = ["9", "10", "11", "12"];
 const tones = {
   blue: "bg-[#e8efff] border-[#3b6fe0] text-[#1e3f8a]",
@@ -430,16 +432,18 @@ const tones = {
   red: "bg-[#fde8e8] border-[#e5484d] text-[#8a1c1f]",
 };
 const fixedEvents = [
-  { day: 0, row: 0, title: "Triage", tone: tones.blue },
-  { day: 2, row: 0, title: "Triage", tone: tones.blue },
-  { day: 4, row: 0, title: "Triage", tone: tones.blue },
-  { day: 2, row: 3, title: "Follow-up", tone: tones.red },
-];
+  { day: 0, row: 0, title: "triage", tone: tones.blue },
+  { day: 2, row: 0, title: "triage", tone: tones.blue },
+  { day: 4, row: 0, title: "triage", tone: tones.blue },
+  { day: 2, row: 3, title: "followUp", tone: tones.red },
+] as const;
 // Dr. Bianchi is free on Thursday from 10 to 13.
 const AVAILABLE = { day: 3, rows: [1, 2, 3] };
 const CAL = { avail: 900, slot: 1900, book: 3000, grab: 4100, drop: 5100 };
 
 export function CalendarIllustration() {
+  const m = useMock();
+  const days = m.days;
   const [showAvail, setShowAvail] = useState(false);
   const [draft, setDraft] = useState(false);
   const [booked, setBooked] = useState(false);
@@ -451,7 +455,7 @@ export function CalendarIllustration() {
   return (
     <div className="relative w-full max-w-[580px]">
       <div className={panel}>
-        <PanelHeader title="September 2026" meta="Week" />
+        <PanelHeader title={m.month} meta={m.week} />
         <div className="grid grid-cols-[32px_repeat(5,1fr)] px-3 pb-3">
           <div />
           {days.map((d, i) => (
@@ -489,7 +493,7 @@ export function CalendarIllustration() {
                   >
                     {isFree && row === 1 && (
                       <span className="anim-in absolute inset-x-1.5 top-1.5 truncate text-xs font-medium tracking-[-0.01em] text-emerald-700">
-                        Dr. Bianchi free
+                        {m.doctorFree}
                       </span>
                     )}
                     {fixed && (
@@ -500,7 +504,7 @@ export function CalendarIllustration() {
                           fixed.tone
                         )}
                       >
-                        {fixed.title}
+                        {m[fixed.title]}
                       </In>
                     )}
                     {isVisit && (
@@ -514,7 +518,7 @@ export function CalendarIllustration() {
                           dragging && "opacity-35"
                         )}
                       >
-                        Video visit
+                        {m.videoVisit}
                       </div>
                     )}
                     {isSlot && (draft || booked) && (
@@ -526,19 +530,19 @@ export function CalendarIllustration() {
                             : "border border-dashed border-[#1f9254] bg-white text-[#14532d]"
                         )}
                       >
-                        {booked ? "G. Rossi" : "New visit"}
+                        {booked ? "G. Rossi" : m.newVisit}
                       </div>
                     )}
                     {isSlot && draft && !booked && (
                       <div className="anim-in absolute -top-11 right-full z-20 mr-2 w-[200px] rounded-lg border border-black/10 bg-white p-3 shadow-[0_12px_28px_-10px_rgba(0,0,0,0.25)]">
-                        <p className="text-[13px] font-semibold tracking-[-0.01em] text-ink">Video visit</p>
+                        <p className="text-[13px] font-semibold tracking-[-0.01em] text-ink">{m.videoVisit}</p>
                         <p className="mt-0.5 text-xs tracking-[-0.01em] text-body">G. Rossi, 72 · Dr. Bianchi</p>
-                        <p className="text-xs tracking-[-0.01em] text-mute">Thu 1 · 11:00 – 12:00</p>
+                        <p className="text-xs tracking-[-0.01em] text-mute">{m.visitTime}</p>
                         <span
                           data-cursor="book"
                           className="mt-2.5 flex h-7 items-center justify-center rounded-md bg-ink text-xs font-medium tracking-[-0.01em] text-white transition-colors data-hovered:bg-[#333]"
                         >
-                          Book
+                          {m.book}
                         </span>
                       </div>
                     )}
@@ -558,7 +562,7 @@ export function CalendarIllustration() {
             target: "visit",
             at: CAL.grab,
             action: "down",
-            carry: { label: "Video visit", className: tones.violet },
+            carry: { label: m.videoVisit, className: tones.violet },
             onClick: () => setDragging(true),
           },
           {
@@ -578,6 +582,7 @@ export function CalendarIllustration() {
 
 /* 6. Contract signing with a one-time code */
 export function ContractIllustration() {
+  const m = useMock();
   const code = ["4", "8", "1", "9", "2", "7"];
   return (
     <div className="relative w-full max-w-[480px]">
@@ -585,7 +590,7 @@ export function ContractIllustration() {
         <div className="flex items-center gap-2.5 border-b border-hairline px-4 py-2.5">
           <FileSignatureIcon className="size-4 text-mute" />
           <span className="text-[15px] font-semibold tracking-[-0.01em] text-ink">
-            Service contract
+            {m.serviceContract}
           </span>
           <span className="ml-auto text-[13px] tracking-[-0.01em] text-mute">
             CT-0317
@@ -593,7 +598,7 @@ export function ContractIllustration() {
         </div>
         <div className="px-4 py-4">
           <p className="text-[15px] tracking-[-0.01em] text-body">
-            Code sent by SMS to{" "}
+            {m.codeSentTo}{" "}
             <span className="text-ink">+39 ••• ••• 4821</span>
           </p>
           <div className="mt-3 flex gap-1.5">
@@ -613,10 +618,10 @@ export function ContractIllustration() {
           className="flex items-center justify-between border-t border-hairline bg-hairline-soft px-4 py-2.5"
         >
           <span className="text-[15px] tracking-[-0.01em] text-ink">
-            Contract signed
+            {m.contractSigned}
           </span>
           <Tag tone="green">
-            <CheckIcon className="size-3" strokeWidth={2.5} /> Verified
+            <CheckIcon className="size-3" strokeWidth={2.5} /> {m.verified}
           </Tag>
         </In>
       </div>

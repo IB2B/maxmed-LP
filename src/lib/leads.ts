@@ -1,4 +1,25 @@
+import { getDictionary, hasLocale, type Locale } from "@/i18n/config";
+
 const UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"] as const;
+
+/** The form's language (sent by the page), falling back to English. */
+export const leadLang = (value: unknown): Locale =>
+  typeof value === "string" && hasLocale(value) ? value : "en";
+
+/** Validation messages in the visitor's language, the same ones the forms show. */
+export const leadErrors = (lang: Locale) => getDictionary(lang).forms.errors;
+
+const SEND_FAILED = {
+  en: {
+    demo: "We couldn't send your request. Please try again in a moment.",
+    doctor: "We couldn't send your application. Please try again in a moment.",
+  },
+  it: {
+    demo: "Non siamo riusciti a inviare la tua richiesta. Riprova tra qualche istante.",
+    doctor: "Non siamo riusciti a inviare la tua candidatura. Riprova tra qualche istante.",
+  },
+};
+export const sendFailed = (lang: Locale, type: "demo" | "doctor") => SEND_FAILED[lang][type];
 
 export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 

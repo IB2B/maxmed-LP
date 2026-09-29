@@ -6,10 +6,11 @@
  */
 export const IS_SAMPLE = true;
 
+/** Labels are in the dictionaries (network.stats), in this order. */
 export const networkStats = [
-  { value: "120+", label: "Care facilities connected", icon: "hospital" },
-  { value: "85", label: "Doctors on the platform", icon: "health-worker" },
-  { value: "9,400", label: "Video consultations", icon: "video-camera" },
+  { value: "120+", icon: "hospital" },
+  { value: "85", icon: "health-worker" },
+  { value: "9,400", icon: "video-camera" },
 ];
 
 /** Cities with MaxMed facilities. `facilities` is shown on hover; `label` shows the name always. */

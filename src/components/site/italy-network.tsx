@@ -3,9 +3,9 @@ import DottedMap from "dotted-map";
 
 import { cn } from "@/lib/utils";
 import { Divider, Frame } from "@/components/site/frame";
-import { Tag } from "@/components/site/feature-illustrations";
 import { CountUp } from "@/components/site/count-up";
 import { IS_SAMPLE, networkCities, networkStats } from "@/data/network";
+import { format, getDictionary, type Locale } from "@/i18n/config";
 
 // Computed once on the server; visitors only receive the finished SVG.
 const MAP_HEIGHT = 70;
@@ -22,26 +22,33 @@ const pins = networkCities.map((city) => {
   return { ...city, x: point.x, y: point.y };
 });
 
-const rows = [
-  ...networkStats,
-  { value: String(networkCities.length), label: "Cities with MaxMed facilities", icon: "cityscape" },
-];
+// Real figures only: until src/data/network.ts holds real data (IS_SAMPLE = false),
+// production shows no pins and lists product facts instead of numbers.
+// Local dev previews the sample data, tagged, so the layout can be reviewed.
+const isPreview = IS_SAMPLE && process.env.NODE_ENV === "development";
+const showData = !IS_SAMPLE || isPreview;
 
-export function ItalyNetwork() {
+// Icons for the stat rows (networkStats, then the city count) and the fact rows,
+// in the same order as network.stats and network.facts in the dictionaries.
+const statIcons = [...networkStats.map((s) => s.icon), "cityscape"];
+const statValues = [...networkStats.map((s) => s.value), String(networkCities.length)];
+const factIcons = ["hospital", "health-worker", "video-camera", "flag-italy"];
+
+export function ItalyNetwork({ lang }: { lang: Locale }) {
+  const t = getDictionary(lang).network;
+  const rows = [...t.stats, t.cities].map((label, i) => ({ label, value: statValues[i], icon: statIcons[i] }));
+  const facts = t.facts.map((fact, i) => ({ ...fact, icon: factIcons[i] }));
   return (
     <section id="network" className="scroll-mt-[68px]">
       <Frame className="px-5 py-20 text-center sm:px-10 sm:py-24">
-        <div className="flex items-center justify-center gap-3">
-          <p className="font-mono text-[13px] font-medium tracking-wider text-[#e5533d] uppercase">
-            Across Italy
-          </p>
-          {IS_SAMPLE && <Tag tone="amber">Sample data</Tag>}
-        </div>
-        <h2 className="mt-4 text-[34px] leading-[1.1] font-semibold tracking-[-0.045em] text-balance text-ink sm:text-[48px]">
-          One network, from the Alps to Sicily
+        <p className="font-mono text-[13px] font-medium tracking-wider text-[#e5533d] uppercase">
+          {t.eyebrow}
+        </p>
+        <h2 className="mx-auto mt-4 max-w-[640px] text-[34px] leading-[1.1] font-semibold tracking-[-0.045em] text-balance text-ink sm:text-[48px]">
+          {showData ? t.titleData : t.titleFacts}
         </h2>
         <p className="mx-auto mt-5 max-w-[480px] text-[17px] leading-7 tracking-normal text-balance text-body">
-          Care facilities and doctors across Italy already work together on MaxMed.
+          {showData ? t.subtitleData : t.subtitleFacts}
         </p>
       </Frame>
 
@@ -57,12 +64,14 @@ export function ItalyNetwork() {
                 viewBox={`0 0 ${width} ${height}`}
                 className="absolute inset-0 size-full"
                 role="img"
-                aria-label={`Map of Italy with MaxMed facilities in ${networkCities.length} cities`}
+                aria-label={
+                  showData ? format(t.mapLabelData, { count: networkCities.length }) : t.mapLabel
+                }
               >
                 {dots.map((d, i) => (
                   <circle key={i} cx={d.x} cy={d.y} r={0.28} fill="#d4d4d4" />
                 ))}
-                {pins.map((p, i) => (
+                {showData && pins.map((p, i) => (
                   <g key={p.name}>
                     <circle
                       cx={p.x}
@@ -78,7 +87,7 @@ export function ItalyNetwork() {
               </svg>
 
               {/* Hover targets and labels, positioned over the SVG. */}
-              {pins.map((p) => (
+              {showData && pins.map((p) => (
                 <div
                   key={p.name}
                   className="group absolute size-5 -translate-x-1/2 -translate-y-1/2"
@@ -93,7 +102,7 @@ export function ItalyNetwork() {
                     )}
                   >
                     {p.name}
-                    <span className="hidden group-hover:inline"> · {p.facilities} facilities</span>
+                    <span className="hidden group-hover:inline"> · {p.facilities} {t.facilities}</span>
                   </span>
                 </div>
               ))}
@@ -101,7 +110,7 @@ export function ItalyNetwork() {
           </div>
 
           <dl className="order-first grid divide-y divide-hairline border-b border-hairline lg:order-none lg:grid-rows-4 lg:border-b-0">
-            {rows.map((row) => (
+            {showData ? rows.map((row) => (
               <div key={row.label} className="flex items-center gap-5 px-5 py-8 sm:px-9">
                 <Image
                   src={`/icons/${row.icon}.svg`}
@@ -115,6 +124,20 @@ export function ItalyNetwork() {
                   <dd className="text-[40px] leading-none font-semibold tracking-[-0.045em] text-ink tabular-nums">
                     <CountUp value={row.value} />
                   </dd>
+                </div>
+              </div>
+            )) : facts.map((fact) => (
+              <div key={fact.title} className="flex items-center gap-5 px-5 py-8 sm:px-9">
+                <Image
+                  src={`/icons/${fact.icon}.svg`}
+                  alt=""
+                  width={48}
+                  height={48}
+                  className="-m-1 size-12 shrink-0"
+                />
+                <div>
+                  <dt className="text-lg leading-7 font-semibold tracking-[-0.02em] text-ink">{fact.title}</dt>
+                  <dd className="mt-0.5 text-[15px] leading-6 tracking-[-0.005em] text-body">{fact.text}</dd>
                 </div>
               </div>
             ))}

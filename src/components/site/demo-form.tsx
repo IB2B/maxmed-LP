@@ -13,42 +13,41 @@ import {
   inputClass,
   useLeadForm,
 } from "@/components/site/lead-form";
+import { format } from "@/i18n/config";
+import { useI18n } from "@/i18n/provider";
+import type { Dictionary } from "@/i18n/dictionaries/en";
 
-const facilityTypes = [
-  { value: "care-home", label: "Care home (RSA)" },
-  { value: "clinic", label: "Clinic or medical centre" },
-  { value: "pharmacy", label: "Pharmacy" },
-  { value: "home-care", label: "Home care service" },
-  { value: "other", label: "Other" },
-];
+// Must match FACILITY_TYPES in src/app/api/demo/route.ts; labels are in the dictionaries.
+const facilityTypes = ["care-home", "clinic", "pharmacy", "home-care", "other"] as const;
 
 type Key = "name" | "facility" | "email" | "phone" | "facilityType";
 
-function validate(v: Record<string, string>) {
+function validate(v: Record<string, string>, errors: Dictionary["forms"]["errors"]) {
   const e: Partial<Record<Key, string>> = {};
-  if (v.name.trim().length < 2) e.name = "Please enter your name.";
-  if (v.facility.trim().length < 2) e.facility = "Please enter your facility's name.";
-  if (!EMAIL_RE.test(v.email.trim())) e.email = "Please enter a valid email.";
-  if (v.phone.replace(/\D/g, "").length < 6) e.phone = "Please enter a valid phone number.";
-  if (!v.facilityType) e.facilityType = "Please choose a facility type.";
+  if (v.name.trim().length < 2) e.name = errors.name;
+  if (v.facility.trim().length < 2) e.facility = errors.facility;
+  if (!EMAIL_RE.test(v.email.trim())) e.email = errors.email;
+  if (v.phone.replace(/\D/g, "").length < 6) e.phone = errors.phone;
+  if (!v.facilityType) e.facilityType = errors.facilityType;
   return e;
 }
 
 export function DemoForm() {
+  const f = useI18n().dict.forms;
+  const t = f.demo;
   const { errors, formError, sending, sent, reset, onSubmit, onInput, invalid } = useLeadForm<Key>(
     "/api/demo",
-    validate
+    (values) => validate(values, f.errors)
   );
 
   if (sent) {
     return (
       <SuccessMessage
-        title={`Thanks, ${sent.name.trim().split(" ")[0]}. Your request is in.`}
+        title={format(t.thanks, { name: sent.name.trim().split(" ")[0] })}
         onReset={reset}
-        resetLabel="Send another request"
+        resetLabel={t.another}
       >
-        Our team will contact you at <span className="text-ink">{sent.email.trim()}</span> to set up
-        your demo.
+        {format(t.body, { email: sent.email.trim() })}
       </SuccessMessage>
     );
   }
@@ -56,10 +55,10 @@ export function DemoForm() {
   return (
     <form noValidate onSubmit={onSubmit} onInput={onInput} className="space-y-5">
       <div className="grid gap-5 sm:grid-cols-2">
-        <Field id="name" label="Full name" error={errors.name}>
+        <Field id="name" label={f.fullName} error={errors.name}>
           <input id="name" name="name" autoComplete="name" className={inputClass} {...invalid("name")} />
         </Field>
-        <Field id="facility" label="Facility name" error={errors.facility}>
+        <Field id="facility" label={t.facility} error={errors.facility}>
           <input
             id="facility"
             name="facility"
@@ -70,7 +69,7 @@ export function DemoForm() {
         </Field>
       </div>
       <div className="grid gap-5 sm:grid-cols-2">
-        <Field id="email" label="Work email" error={errors.email}>
+        <Field id="email" label={t.workEmail} error={errors.email}>
           <input
             id="email"
             name="email"
@@ -81,7 +80,7 @@ export function DemoForm() {
             {...invalid("email")}
           />
         </Field>
-        <Field id="phone" label="Phone" error={errors.phone}>
+        <Field id="phone" label={f.phone} error={errors.phone}>
           <input
             id="phone"
             name="phone"
@@ -94,7 +93,7 @@ export function DemoForm() {
           />
         </Field>
       </div>
-      <Field id="facilityType" label="Type of facility" error={errors.facilityType}>
+      <Field id="facilityType" label={t.facilityType} error={errors.facilityType}>
         <div className="relative">
           <select
             id="facilityType"
@@ -105,11 +104,11 @@ export function DemoForm() {
             {...invalid("facilityType")}
           >
             <option value="" disabled>
-              Choose one
+              {t.choose}
             </option>
             {facilityTypes.map((type) => (
-              <option key={type.value} value={type.value} className="text-ink">
-                {type.label}
+              <option key={type} value={type} className="text-ink">
+                {t.types[type]}
               </option>
             ))}
           </select>
@@ -121,11 +120,11 @@ export function DemoForm() {
       <FormError message={formError} />
 
       <Button type="submit" disabled={sending} className="h-12 w-full rounded-full px-6 text-base">
-        {sending ? "Sending…" : "Book my demo"}
+        {sending ? f.sending : t.submit}
         {!sending && <ArrowRightIcon data-icon="inline-end" />}
       </Button>
       <p className="text-center text-[13px] leading-5 tracking-[-0.01em] text-mute">
-        We only use these details to contact you about MaxMed.
+        {t.privacy}
       </p>
     </form>
   );

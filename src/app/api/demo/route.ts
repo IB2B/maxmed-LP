@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { EMAIL_RE, clean, cleanUtm, forwardLead } from "@/lib/leads";
+import { EMAIL_RE, clean, cleanUtm, forwardLead, leadErrors, leadLang, sendFailed } from "@/lib/leads";
 
 const FACILITY_TYPES = ["care-home", "clinic", "pharmacy", "home-care", "other"];
 
@@ -15,6 +15,8 @@ export async function POST(request: Request) {
   // Honeypot: real visitors never see or fill this field.
   if (clean(body.website)) return NextResponse.json({ ok: true });
 
+  const lang = leadLang(body.lang);
+  const msg = leadErrors(lang);
   const data = {
     name: clean(body.name, 120),
     facility: clean(body.facility, 160),
@@ -23,19 +25,20 @@ export async function POST(request: Request) {
     facilityType: clean(body.facilityType),
     utm: cleanUtm(body.utm),
     referrer: clean(body.referrer, 500),
+    lang,
   };
 
   const errors: Record<string, string> = {};
-  if (data.name.length < 2) errors.name = "Please enter your name.";
-  if (data.facility.length < 2) errors.facility = "Please enter your facility's name.";
-  if (!EMAIL_RE.test(data.email)) errors.email = "Please enter a valid email.";
-  if (data.phone.replace(/\D/g, "").length < 6) errors.phone = "Please enter a valid phone number.";
-  if (!FACILITY_TYPES.includes(data.facilityType)) errors.facilityType = "Please choose a facility type.";
+  if (data.name.length < 2) errors.name = msg.name;
+  if (data.facility.length < 2) errors.facility = msg.facility;
+  if (!EMAIL_RE.test(data.email)) errors.email = msg.email;
+  if (data.phone.replace(/\D/g, "").length < 6) errors.phone = msg.phone;
+  if (!FACILITY_TYPES.includes(data.facilityType)) errors.facilityType = msg.facilityType;
   if (Object.keys(errors).length) return NextResponse.json({ errors }, { status: 422 });
 
   if (!(await forwardLead({ type: "demo", ...data }))) {
     return NextResponse.json(
-      { error: "We couldn't send your request. Please try again in a moment." },
+      { error: sendFailed(lang, "demo") },
       { status: 502 }
     );
   }

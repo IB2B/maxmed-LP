@@ -7,15 +7,13 @@ import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { Tag } from "@/components/site/feature-illustrations";
 import { DemoCursor, useReducedMotion } from "@/components/site/demo-cursor";
+import { useI18n } from "@/i18n/provider";
 
 /* A doctor's day: start a shift, check the month, download a report, pick a payout method. */
 const T = { start: 1000, open: 2300, paid: 3100, download: 4400, stripe: 5700, loop: 8500 };
 
-const reports = [
-  { month: "September 2026", hours: "62h 30m" },
-  { month: "August 2026", hours: "58h 10m" },
-  { month: "July 2026", hours: "64h 05m" },
-];
+// Month names are in mock.reportMonths, in the same order.
+const reportHours = ["62h 30m", "58h 10m", "64h 05m"];
 
 function formatClock(total: number) {
   const pad = (n: number) => String(n).padStart(2, "0");
@@ -29,6 +27,8 @@ function delay(ms: number) {
 type Payout = "bank" | "stripe";
 
 export function DoctorReportsMockup() {
+  const m = useI18n().dict.mock;
+  const reports = m.reportMonths.map((month, i) => ({ month, hours: reportHours[i] }));
   const ref = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
   const [run, setRun] = useState(0);
@@ -94,8 +94,8 @@ export function DoctorReportsMockup() {
         {onShift ? (
           <>
             <div className="anim-in">
-              <p className="text-[15px] font-semibold tracking-[-0.01em] text-ink">Shift in progress</p>
-              <p className="text-[13px] tracking-[-0.01em] text-mute">Hours tracked automatically</p>
+              <p className="text-[15px] font-semibold tracking-[-0.01em] text-ink">{m.shiftInProgress}</p>
+              <p className="text-[13px] tracking-[-0.01em] text-mute">{m.hoursTracked}</p>
             </div>
             <span className="anim-in flex items-center gap-2 text-[15px] font-medium tracking-[-0.01em] text-ink tabular-nums">
               <span className="size-2 rounded-full bg-emerald-500" />
@@ -105,14 +105,14 @@ export function DoctorReportsMockup() {
         ) : (
           <>
             <div>
-              <p className="text-[15px] font-semibold tracking-[-0.01em] text-ink">Off shift</p>
-              <p className="text-[13px] tracking-[-0.01em] text-mute">Ready when you are</p>
+              <p className="text-[15px] font-semibold tracking-[-0.01em] text-ink">{m.offShift}</p>
+              <p className="text-[13px] tracking-[-0.01em] text-mute">{m.ready}</p>
             </div>
             <span
               data-cursor="start"
               className="flex items-center gap-1.5 rounded-md bg-ink px-3 py-1.5 text-[13px] font-medium tracking-[-0.01em] text-white transition-colors data-hovered:bg-[#333]"
             >
-              <PlayIcon className="size-3 fill-current" /> Start shift
+              <PlayIcon className="size-3 fill-current" /> {m.startShift}
             </span>
           </>
         )}
@@ -120,7 +120,7 @@ export function DoctorReportsMockup() {
 
       <Card className="gap-0 py-0">
         <div className="flex items-center justify-between border-b border-hairline px-4 py-2.5">
-          <span className="text-[15px] font-semibold tracking-[-0.01em] text-ink">Payment reports</span>
+          <span className="text-[15px] font-semibold tracking-[-0.01em] text-ink">{m.paymentReports}</span>
           <span className="text-[13px] tracking-[-0.01em] text-mute">Dr. L. Bianchi</span>
         </div>
         <div key={`${run}-${inView}`} className={cn(!inView && "anim-paused")}>
@@ -150,12 +150,12 @@ export function DoctorReportsMockup() {
                     {r.hours}
                   </span>
                   {isSeptember && !septemberPaid ? (
-                    <Tag tone="amber">Processing</Tag>
+                    <Tag tone="amber">{m.processing}</Tag>
                   ) : (
                     <span key={isSeptember ? "paid-now" : "paid"} className={isSeptember ? "anim-in" : undefined}>
                       <Tag tone="green">
                         {isSeptember && <CheckIcon className="size-3" strokeWidth={2.75} />}
-                        Paid
+                        {m.paid}
                       </Tag>
                     </span>
                   )}
@@ -173,13 +173,13 @@ export function DoctorReportsMockup() {
                 {isSeptember && septOpen && (
                   <div className="anim-in flex gap-6 bg-hairline-soft/60 px-4 pb-3 pl-10 text-[13px] tracking-[-0.01em] text-body">
                     <span>
-                      <span className="text-ink">48</span> consultations
+                      <span className="text-ink">48</span> {m.consultations}
                     </span>
                     <span>
-                      <span className="text-ink">3</span> emergencies
+                      <span className="text-ink">3</span> {m.emergencies}
                     </span>
                     <span>
-                      <span className="text-ink">21</span> shifts
+                      <span className="text-ink">21</span> {m.shifts}
                     </span>
                   </div>
                 )}
@@ -188,7 +188,7 @@ export function DoctorReportsMockup() {
           })}
         </div>
         <div className="flex items-center justify-between px-4 py-2.5">
-          <span className="text-[13px] tracking-[-0.01em] text-mute">Payout method</span>
+          <span className="text-[13px] tracking-[-0.01em] text-mute">{m.payoutMethod}</span>
           <div className="relative flex rounded-md bg-hairline-soft p-0.5 text-[13px] font-medium tracking-[-0.01em]">
             <span
               aria-hidden
@@ -203,7 +203,7 @@ export function DoctorReportsMockup() {
                 payout === "bank" ? "text-ink" : "text-mute"
               )}
             >
-              Bank transfer
+              {m.bankTransfer}
             </span>
             <span
               data-cursor="stripe"
@@ -221,7 +221,7 @@ export function DoctorReportsMockup() {
       {downloaded && (
         <span className="anim-in flex items-center gap-1.5 self-end rounded-md bg-ink px-2.5 py-1.5 text-[13px] font-medium tracking-[-0.01em] text-white">
           <CheckIcon className="size-3.5 text-emerald-400" strokeWidth={2.75} />
-          August report downloaded
+          {m.reportDownloaded}
         </span>
       )}
 
