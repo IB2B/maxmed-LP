@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { CheckIcon } from "lucide-react";
 
+import { useI18n } from "@/i18n/provider";
+
 export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 export const inputClass =
@@ -98,6 +100,7 @@ export function useLeadForm<K extends string>(
   /** Prefix for element ids, when several forms share a page. */
   idPrefix = ""
 ) {
+  const { lang, dict } = useI18n();
   const utm = useRef<Record<string, string>>({});
   const [errors, setErrors] = useState<Partial<Record<K, string>>>({});
   const [formError, setFormError] = useState("");
@@ -131,14 +134,14 @@ export function useLeadForm<K extends string>(
       const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...values, utm: utm.current, referrer: document.referrer }),
+        body: JSON.stringify({ ...values, lang, utm: utm.current, referrer: document.referrer }),
       });
       const json = await res.json().catch(() => ({}));
       if (res.ok) setSent(values);
       else if (json.errors) setErrors(json.errors);
-      else setFormError(json.error ?? "Something went wrong. Please try again.");
+      else setFormError(json.error ?? dict.forms.errors.generic);
     } catch {
-      setFormError("You seem to be offline. Please check your connection and try again.");
+      setFormError(dict.forms.errors.offline);
     } finally {
       setSending(false);
     }

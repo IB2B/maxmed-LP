@@ -12,19 +12,20 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Logo } from "@/components/site/logo";
-
-const links = [
-  { label: "Platform", href: "#platform" },
-  { label: "How it works", href: "#how-it-works" },
-  { label: "For doctors", href: "#doctors" },
-  { label: "FAQ", href: "#faq" },
-];
+import { LanguageSwitch } from "@/components/site/language-switch";
+import { homeHash } from "@/i18n/config";
+import { useI18n } from "@/i18n/provider";
+import { LOGIN_URL } from "@/lib/links";
 
 export function Navbar() {
+  const { lang, dict } = useI18n();
+  const { common } = dict;
+  const links = dict.nav.map((link) => ({ label: link.label, href: homeHash(lang, link.hash) }));
+
   return (
     <header className="sticky top-0 z-40 border-b border-hairline bg-white/90 backdrop-blur-md">
       <nav className="relative mx-auto flex h-[68px] max-w-[1080px] items-center justify-between px-5 sm:px-10">
-        <Link href="/" aria-label="MaxMed, home">
+        <Link href={`/${lang}`} aria-label={common.home}>
           <Logo />
         </Link>
 
@@ -42,12 +43,13 @@ export function Navbar() {
         </ul>
 
         <div className="flex items-center gap-2">
+          <LanguageSwitch className="hidden sm:flex" />
           <Button
             className="h-9 rounded-full px-4 text-sm"
-            render={<a href="/login" />}
+            render={<a href={LOGIN_URL} />}
             nativeButton={false}
           >
-            Log in
+            {common.logIn}
           </Button>
 
           <Sheet>
@@ -57,7 +59,7 @@ export function Navbar() {
                   variant="ghost"
                   size="icon"
                   className="lg:hidden"
-                  aria-label="Open menu"
+                  aria-label={common.openMenu}
                 />
               }
             >
@@ -81,25 +83,26 @@ export function Navbar() {
                 ))}
               </ul>
               <div className="mt-auto flex flex-col gap-2 border-t border-hairline p-6">
+                <LanguageSwitch className="mb-2 self-start" />
                 <Button
                   variant="outline"
                   className="h-11 rounded-full border-hairline bg-white text-base"
-                  render={<a href="/login" />}
+                  render={<a href={LOGIN_URL} />}
                   nativeButton={false}
                 >
-                  Log in
+                  {common.logIn}
                 </Button>
                 <SheetClose
                   render={
                     <Button
                       className="h-11 rounded-full text-base"
-                      render={<a href="#demo" />}
+                      render={<a href={homeHash(lang, "demo")} />}
                       nativeButton={false}
                     />
                   }
                   nativeButton={false}
                 >
-                  Book a demo
+                  {common.bookDemo}
                 </SheetClose>
               </div>
             </SheetContent>

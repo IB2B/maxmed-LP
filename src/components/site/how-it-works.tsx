@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { Divider, Frame } from "@/components/site/frame";
 import { Keycap, RiskMark, Tag, panel } from "@/components/site/feature-illustrations";
 import { DemoCursor } from "@/components/site/demo-cursor";
+import { useI18n } from "@/i18n/provider";
 
 /* Timeline (ms from the start of each loop). Each step starts where the last ends. */
 const STEP_START = [0, 2000, 4200];
@@ -42,27 +43,28 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function RequestMockup() {
+  const m = useI18n().dict.mock;
   const t = STEP_START[0];
   return (
     <div className={cn(panel, "max-w-[280px]")}>
       <div className="flex items-center justify-between border-b border-hairline px-4 py-2.5">
-        <span className="text-[15px] font-semibold tracking-[-0.01em] text-ink">Request access</span>
+        <span className="text-[15px] font-semibold tracking-[-0.01em] text-ink">{m.requestAccess}</span>
         <span className="anim-in" style={delay(CLICK.send + 200)}>
-          <Tag tone="amber">In review</Tag>
+          <Tag tone="amber">{m.inReview}</Tag>
         </span>
       </div>
       <div className="space-y-3 px-4 py-3.5">
-        <Field label="Facility">
+        <Field label={m.facility}>
           <Typed text="RSA Villa Serena" at={t + 300} duration={800} />
         </Field>
-        <Field label="City">
+        <Field label={m.city}>
           <Typed text="Bologna" at={t + 1150} duration={450} />
         </Field>
         <span
           data-cursor="send"
           className="flex h-9 items-center justify-center rounded-md bg-ink text-[15px] font-medium tracking-[-0.01em] text-white transition-colors data-hovered:bg-[#333]"
         >
-          Send request
+          {m.sendRequest}
         </span>
       </div>
     </div>
@@ -70,13 +72,14 @@ function RequestMockup() {
 }
 
 function SignMockup() {
+  const m = useI18n().dict.mock;
   return (
     <div className={cn(panel, "max-w-[280px]")}>
       <div className="border-b border-hairline px-4 py-2.5">
-        <span className="text-[15px] font-semibold tracking-[-0.01em] text-ink">Service contract</span>
+        <span className="text-[15px] font-semibold tracking-[-0.01em] text-ink">{m.serviceContract}</span>
       </div>
       <div className="px-4 py-3.5">
-        <p className="text-[13px] tracking-[-0.01em] text-mute">Code sent by SMS</p>
+        <p className="text-[13px] tracking-[-0.01em] text-mute">{m.codeBySms}</p>
         <div className="mt-2 flex gap-1.5">
           {["4", "8", "1", "9", "2", "7"].map((digit, i) => (
             <span
@@ -95,9 +98,9 @@ function SignMockup() {
         className="anim-in flex items-center justify-between border-t border-hairline bg-hairline-soft px-4 py-2.5"
         style={delay(CLICK.code + 1400)}
       >
-        <span className="text-[15px] tracking-[-0.01em] text-ink">Signed</span>
+        <span className="text-[15px] tracking-[-0.01em] text-ink">{m.signed}</span>
         <Tag tone="green">
-          <CheckIcon className="size-3" strokeWidth={2.5} /> Verified
+          <CheckIcon className="size-3" strokeWidth={2.5} /> {m.verified}
         </Tag>
       </div>
     </div>
@@ -105,17 +108,18 @@ function SignMockup() {
 }
 
 function StartMockup() {
+  const m = useI18n().dict.mock;
   const t = STEP_START[2];
   return (
     <div className={cn(panel, "max-w-[280px]")}>
       <div className="border-b border-hairline px-4 py-2.5">
-        <span className="text-[15px] font-semibold tracking-[-0.01em] text-ink">First patient</span>
+        <span className="text-[15px] font-semibold tracking-[-0.01em] text-ink">{m.firstPatient}</span>
       </div>
       <div className="anim-in flex items-center gap-2.5 px-4 py-3" style={delay(t + 100)}>
         <RiskMark tone="yellow" />
         <span className="text-[15px] tracking-[-0.01em] text-ink">A. Marino</span>
         <span className="text-[15px] tracking-[-0.01em] text-mute">58</span>
-        <span className="ml-auto text-[13px] tracking-[-0.01em] text-body">High fever</span>
+        <span className="ml-auto text-[13px] tracking-[-0.01em] text-body">{m.highFever}</span>
       </div>
       <div className="px-4 pb-3">
         <span
@@ -123,47 +127,41 @@ function StartMockup() {
           className="anim-press flex h-9 items-center justify-center gap-2 rounded-md bg-ink text-[15px] font-medium tracking-[-0.01em] text-white transition-colors data-hovered:bg-[#333]"
           style={delay(CLICK.start)}
         >
-          <VideoIcon className="size-4" /> Start consultation
+          <VideoIcon className="size-4" /> {m.startConsultation}
         </span>
       </div>
       <div
         className="anim-in flex items-center justify-between border-t border-hairline bg-hairline-soft px-4 py-2.5"
         style={delay(CLICK.start + 450)}
       >
-        <span className="text-[15px] tracking-[-0.01em] text-ink">Dr. Bianchi joined</span>
+        <span className="text-[15px] tracking-[-0.01em] text-ink">{m.drJoined}</span>
         <Tag tone="green">
-          <span className="size-1.5 rounded-full bg-emerald-500" /> Live
+          <span className="size-1.5 rounded-full bg-emerald-500" /> {m.live}
         </Tag>
       </div>
     </div>
   );
 }
 
-const steps = [
+// Visuals for each step, in the same order as how.steps in the dictionaries.
+const stepVisuals = [
   {
-    title: "Request access",
-    description:
-      "Tell us about your facility in a short form. Our team reviews every request and gets back to you.",
     panel: "bg-[#fbf3e1]",
     Mockup: RequestMockup,
   },
   {
-    title: "Sign your contract online",
-    description:
-      "Read the contract, then confirm with a one-time code by SMS or email. No paper, no meetings.",
     panel: "bg-[#f1effa]",
     Mockup: SignMockup,
   },
   {
-    title: "Start your first consultation",
-    description:
-      "Register a patient, give them a risk code and bring in a doctor on video, straight from the console.",
     panel: "bg-[#ebf6ef]",
     Mockup: StartMockup,
   },
 ];
 
 export function HowItWorks() {
+  const t = useI18n().dict.how;
+  const steps = t.steps.map((copy, i) => ({ ...copy, ...stepVisuals[i] }));
   const listRef = useRef<HTMLOListElement>(null);
   const [inView, setInView] = useState(false);
   const [run, setRun] = useState(0);
@@ -193,13 +191,13 @@ export function HowItWorks() {
     <section id="how-it-works" className="scroll-mt-[68px]">
       <Frame className="px-5 py-20 text-center sm:px-10 sm:py-24">
         <p className="font-mono text-[13px] font-medium tracking-wider text-[#e5533d] uppercase">
-          How it works
+          {t.eyebrow}
         </p>
         <h2 className="mt-4 text-[34px] leading-[1.1] font-semibold tracking-[-0.045em] text-balance text-ink sm:text-[48px]">
-          Up and running in three steps
+          {t.title}
         </h2>
         <p className="mx-auto mt-5 max-w-[520px] text-[17px] leading-7 tracking-normal text-body">
-          From your first request to your first video consultation.
+          {t.subtitle}
         </p>
       </Frame>
 

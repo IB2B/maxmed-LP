@@ -12,35 +12,40 @@ import {
   inputClass,
   useLeadForm,
 } from "@/components/site/lead-form";
+import { format } from "@/i18n/config";
+import { useI18n } from "@/i18n/provider";
+import type { Dictionary } from "@/i18n/dictionaries/en";
 
 type Key = "name" | "email" | "phone" | "specialty";
 
-function validate(v: Record<string, string>) {
+function validate(v: Record<string, string>, errors: Dictionary["forms"]["errors"]) {
   const e: Partial<Record<Key, string>> = {};
-  if (v.name.trim().length < 2) e.name = "Please enter your name.";
-  if (!EMAIL_RE.test(v.email.trim())) e.email = "Please enter a valid email.";
-  if (v.phone.replace(/\D/g, "").length < 6) e.phone = "Please enter a valid phone number.";
-  if (v.specialty.trim().length < 2) e.specialty = "Please enter your specialty.";
+  if (v.name.trim().length < 2) e.name = errors.name;
+  if (!EMAIL_RE.test(v.email.trim())) e.email = errors.email;
+  if (v.phone.replace(/\D/g, "").length < 6) e.phone = errors.phone;
+  if (v.specialty.trim().length < 2) e.specialty = errors.specialty;
   return e;
 }
 
 const P = "doc-";
 
 export function DoctorForm() {
+  const f = useI18n().dict.forms;
+  const t = f.doctor;
   const { errors, formError, sending, sent, reset, onSubmit, onInput, invalid } = useLeadForm<Key>(
     "/api/doctors",
-    validate,
+    (values) => validate(values, f.errors),
     P
   );
 
   if (sent) {
     return (
       <SuccessMessage
-        title={`Thanks, Dr. ${sent.name.trim().split(" ").at(-1)}. Your application is in.`}
+        title={format(t.thanks, { name: sent.name.trim().split(" ").at(-1) ?? "" })}
         onReset={reset}
-        resetLabel="Send another application"
+        resetLabel={t.another}
       >
-        We&apos;ll review it and contact you at <span className="text-ink">{sent.email.trim()}</span>.
+        {format(t.body, { email: sent.email.trim() })}
       </SuccessMessage>
     );
   }
@@ -48,10 +53,10 @@ export function DoctorForm() {
   return (
     <form noValidate onSubmit={onSubmit} onInput={onInput} className="space-y-5">
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        <Field id={`${P}name`} label="Full name" error={errors.name}>
+        <Field id={`${P}name`} label={f.fullName} error={errors.name}>
           <input id={`${P}name`} name="name" autoComplete="name" className={inputClass} {...invalid("name")} />
         </Field>
-        <Field id={`${P}email`} label="Email" error={errors.email}>
+        <Field id={`${P}email`} label={f.email} error={errors.email}>
           <input
             id={`${P}email`}
             name="email"
@@ -62,7 +67,7 @@ export function DoctorForm() {
             {...invalid("email")}
           />
         </Field>
-        <Field id={`${P}phone`} label="Phone" error={errors.phone}>
+        <Field id={`${P}phone`} label={f.phone} error={errors.phone}>
           <input
             id={`${P}phone`}
             name="phone"
@@ -74,11 +79,11 @@ export function DoctorForm() {
             {...invalid("phone")}
           />
         </Field>
-        <Field id={`${P}specialty`} label="Specialty" error={errors.specialty}>
+        <Field id={`${P}specialty`} label={t.specialty} error={errors.specialty}>
           <input
             id={`${P}specialty`}
             name="specialty"
-            placeholder="e.g. General medicine"
+            placeholder={t.specialtyPlaceholder}
             className={inputClass}
             {...invalid("specialty")}
           />
@@ -90,14 +95,14 @@ export function DoctorForm() {
 
       <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-[13px] leading-5 tracking-[-0.01em] text-mute">
-          We only use these details to review your application.
+          {t.privacy}
         </p>
         <Button
           type="submit"
           disabled={sending}
           className="h-12 w-full rounded-full px-6 text-base sm:w-auto"
         >
-          {sending ? "Sending…" : "Apply to join"}
+          {sending ? f.sending : t.submit}
           {!sending && <ArrowRightIcon data-icon="inline-end" />}
         </Button>
       </div>

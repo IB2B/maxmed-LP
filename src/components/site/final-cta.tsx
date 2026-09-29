@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Divider, Frame } from "@/components/site/frame";
+import { getDictionary, type Locale } from "@/i18n/config";
 
 /** OpenMoji icon with a white sticker edge and a soft drop shadow. */
 function Sticker({ icon, className }: { icon: string; className?: string }) {
@@ -22,7 +23,8 @@ function Sticker({ icon, className }: { icon: string; className?: string }) {
   );
 }
 
-export function FinalCta() {
+export function FinalCta({ lang }: { lang: Locale }) {
+  const { finalCta: t, common } = getDictionary(lang);
   return (
     <section aria-labelledby="final-cta-title">
       <Frame className="relative overflow-hidden px-5 py-24 text-center sm:px-10 sm:py-28">
@@ -33,10 +35,10 @@ export function FinalCta() {
           id="final-cta-title"
           className="mx-auto max-w-[560px] text-[34px] leading-[1.08] font-semibold tracking-[-0.045em] text-balance text-ink sm:text-[52px]"
         >
-          Bring a doctor to every patient with MaxMed
+          {t.title}
         </h2>
         <p className="mx-auto mt-5 max-w-[460px] text-[17px] leading-7 tracking-normal text-body">
-          Book a demo and we&apos;ll walk your team through it, step by step.
+          {t.subtitle}
         </p>
         <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
           <Button
@@ -44,7 +46,7 @@ export function FinalCta() {
             render={<a href="#demo" />}
             nativeButton={false}
           >
-            Book a demo
+            {common.bookDemo}
           </Button>
           <Button
             variant="secondary"
@@ -52,7 +54,7 @@ export function FinalCta() {
             render={<a href="#doctors" />}
             nativeButton={false}
           >
-            Join as a doctor
+            {common.joinDoctor}
           </Button>
         </div>
       </Frame>
